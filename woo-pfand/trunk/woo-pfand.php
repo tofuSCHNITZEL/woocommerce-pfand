@@ -11,7 +11,7 @@
  * Plugin Name:       Pfand (Deposit) for WooCommerce Products
  * Plugin URI:        http://www.nerdissimo.de
  * Description:       This plugin makes it easy to add Deposits (Pfand) to WooCommerce products
- * Version:           2.0.0
+ * Version:           2.0.1
  * Author:            Nerdissimo
  * Author URI:        http://www.nerdissimo.de
  * License:           GPL-2.0+

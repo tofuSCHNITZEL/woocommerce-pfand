@@ -124,15 +124,32 @@ class Woo_Pfand_Basic {
         $dep_total = 0;
         $tax = $tax_class = false;
 
-        foreach( WC()->cart->get_cart() as $cart_item )
-            $dep_total = $dep_total + $this->get_deposit( $cart_item['product_id'], $cart_item['quantity'] );
+        $taxArray = [];
 
-        $tax = apply_filters( 'add_deposit_value_to_totals', $tax );
-        $dep_total = apply_filters( 'dep_total_before_add_fee', $dep_total );
-        $tax_class = apply_filters( 'tax_class_before_add_fee', $tax_class );
+        foreach( WC()->cart->get_cart() as $cart_item ){
+            $dep_total = $this->get_deposit( $cart_item['product_id'], $cart_item['quantity'] );
+            $tax_class = $cart_item["data"]->get_tax_class();
+            $tax = ("taxable" === $cart_item["data"]->get_tax_status());
 
-        if( $dep_total > 0 )
-            $woocommerce->cart->add_fee( __( 'Deposit Total', $this->woo_pfand ), $dep_total, $tax, $tax_class );
+            $tax = apply_filters( 'add_deposit_value_to_totals', $tax );
+            $dep_total = apply_filters( 'dep_total_before_add_fee', $dep_total );
+            $tax_class = apply_filters( 'tax_class_before_add_fee', $tax_class );
+
+            $taxArray[$tax_class] += $dep_total;
+        }
+
+        foreach($taxArray as $tax_class=>$dep_total){
+
+            $wc_tax = new WC_Tax();
+            $billing_country = WC()->customer->get_billing_country();
+            $rateInfo = array_pop($wc_tax->find_rates(array('country'=>$billing_country,'tax_class'=>$tax_class)));
+            $rate = $rateInfo["rate"];
+
+            if( $dep_total > 0 ){
+                $woocommerce->cart->add_fee( __( 'Deposit Total', $this->woo_pfand ).' (inkl. '.$rate.'% MwSt.)', $dep_total/(1+($rate/100)), $tax, $tax_class );
+            }
+
+        }
 
     }
 
