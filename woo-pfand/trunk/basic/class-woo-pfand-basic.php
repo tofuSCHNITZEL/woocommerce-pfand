@@ -183,7 +183,7 @@ class Woo_Pfand_Basic {
         if( $terms && ! is_wp_error( $terms ) ) {
             $dep_total = 0;
             foreach( $terms as $term ) {
-                $dep_total = $dep_total + $term->name;
+                $dep_total = $dep_total + (float)$term->name;
             }
         }  
 
